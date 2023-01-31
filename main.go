@@ -15,8 +15,8 @@ func (t Tree) printLeaves(prefix string) {
 	for k, v := range t {
 		switch node := v.(type) {
 		case string:
-			if !strings.HasPrefix(node, "secret ") {
-				fmt.Println(prefix+k.(string), "=", node)
+			if strings.HasPrefix(node, "secret ") {
+				fmt.Println(prefix+k.(string), "=", strings.TrimPrefix(node, "secret "))
 			}
 		case Tree:
 			node.printLeaves(prefix + k.(string) + ".")
