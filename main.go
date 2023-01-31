@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -12,7 +13,7 @@ type Tree map[interface{}]interface{}
 
 func (t Tree) leaves() []interface{} {
 	var leaves []interface{}
-	for k, v := range t {
+	for _, v := range t {
 		switch node := v.(type) {
 		case string:
 			if strings.HasPrefix(node, "secret ") {
