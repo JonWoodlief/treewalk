@@ -11,18 +11,19 @@ import (
 
 type Tree map[interface{}]interface{}
 
-func (t Tree) printLeaves() {
+func (t Tree) printLeaves(prefix string) {
 	for k, v := range t {
 		switch node := v.(type) {
 		case string:
 			if strings.HasPrefix(node, "secret ") {
-				fmt.Println(k.(string) + "=" + strings.TrimPrefix(node, "secret "))
+				fmt.Println(prefix+k.(string)+"="+strings.TrimPrefix(node, "secret "))
 			}
 		case Tree:
-			node.printLeaves()
+			node.printLeaves(prefix + k.(string) + ".")
 		}
 	}
 }
+
 
 func (t Tree) removeSecrets() Tree {
 	for k, v := range t {
@@ -41,11 +42,12 @@ func (t Tree) removeSecrets() Tree {
 func (t Tree) removeEmptyBranches() Tree {
 	for k, v := range t {
 		switch node := v.(type) {
+		case string:
+			// do nothing
 		case Tree:
-			if len(node) == 0 {
+			t[k] = node.removeEmptyBranches()
+			if len(t[k].(Tree)) == 0 {
 				delete(t, k)
-			} else {
-				t[k] = node.removeEmptyBranches()
 			}
 		}
 	}
@@ -64,7 +66,7 @@ func main() {
 		log.Fatalf("error unmarshaling file: %v", err)
 	}
 
-	t.printLeaves()
+	t.printLeaves("")
 	t = t.removeSecrets()
 	t = t.removeEmptyBranches()
 
