@@ -11,19 +11,31 @@ import (
 
 type Tree map[interface{}]interface{}
 
-func (t Tree) leaves() []interface{} {
-	var leaves []interface{}
-	for _, v := range t {
+func (t Tree) printLeaves() {
+	for k, v := range t {
+		switch node := v.(type) {
+		case string:
+			if !strings.HasPrefix(node, "secret ") {
+				fmt.Println(k, ":", node)
+			}
+		case Tree:
+			node.printLeaves()
+		}
+	}
+}
+
+func (t Tree) removeSecrets() Tree {
+	for k, v := range t {
 		switch node := v.(type) {
 		case string:
 			if strings.HasPrefix(node, "secret ") {
-				leaves = append(leaves, strings.TrimPrefix(node, "secret "))
+				delete(t, k)
 			}
 		case Tree:
-			leaves = append(leaves, node.leaves()...)
+			t[k] = node.removeSecrets()
 		}
 	}
-	return leaves
+	return t
 }
 
 func main() {
@@ -38,8 +50,13 @@ func main() {
 		log.Fatalf("error unmarshaling file: %v", err)
 	}
 
-	for _, leaf := range t.leaves() {
-		fmt.Println(leaf)
-	}
-}
+	t = t.removeSecrets()
 
+	t.printLeaves()
+
+	output, err := yaml.Marshal(t)
+	if err != nil {
+		log.Fatalf("error marshaling output: %v", err)
+	}
+	fmt.Println("\n\nTree as YAML:\n", string(output))
+}
