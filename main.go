@@ -50,9 +50,8 @@ func main() {
 		log.Fatalf("error unmarshaling file: %v", err)
 	}
 
-	t = t.removeSecrets()
-
 	t.printLeaves("")
+	t = t.removeSecrets()
 
 	output, err := yaml.Marshal(t)
 	if err != nil {
@@ -60,3 +59,4 @@ func main() {
 	}
 	fmt.Println("\n\nTree as YAML:\n", string(output))
 }
+
