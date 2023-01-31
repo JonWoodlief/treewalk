@@ -8,3 +8,10 @@ root:
       leaf4: value4
   secretbranch:
     mysecret: secret yo
+root2:
+  branch2:
+    leaf3: secret value3
+    branch3:
+      leaf4: value4
+  secretbranch:
+    mysecret: secret yo
