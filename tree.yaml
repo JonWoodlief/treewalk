@@ -1,5 +1,8 @@
-ex:
-  another:
-    random-value: yo
-  dude: sup
-hi: hello
+root:
+  branch1:
+    leaf1: value1
+    leaf2: value2
+  branch2:
+    leaf3: value3
+    branch3:
+      leaf4: value4
