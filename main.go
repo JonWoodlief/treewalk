@@ -2,29 +2,25 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"strconv"
-	"strings"
 )
 
-func getLeaves(node interface{}, path []string) [][2]interface{} {
-	var leaves [][2]interface{}
-	switch n := node.(type) {
-	case map[interface{}]interface{}:
-		for key, value := range n {
-			keyString, ok := key.(string)
-			if !ok {
-				keyString = strconv.Itoa(key.(int))
+type Tree map[interface{}]interface{}
+
+func (t Tree) leaves() []interface{} {
+	var leaves []interface{}
+	for k, v := range t {
+		switch node := v.(type) {
+		case string:
+			if strings.HasPrefix(node, "secret ") {
+				leaves = append(leaves, strings.TrimPrefix(node, "secret "))
 			}
-			leaves = append(leaves, getLeaves(value, append(path, keyString))...)
+		case Tree:
+			leaves = append(leaves, node.leaves()...)
 		}
-	case []interface{}:
-		for i, item := range n {
-			leaves = append(leaves, getLeaves(item, append(path, strconv.Itoa(i)))...)
-		}
-	default:
-		leaves = append(leaves, [2]interface{}{strings.Join(path, "."), n})
 	}
 	return leaves
 }
@@ -32,18 +28,17 @@ func getLeaves(node interface{}, path []string) [][2]interface{} {
 func main() {
 	file, err := ioutil.ReadFile("tree.yaml")
 	if err != nil {
-		panic(err)
+		log.Fatalf("error reading file: %v", err)
 	}
 
-	var tree interface{}
-	err = yaml.Unmarshal(file, &tree)
+	var t Tree
+	err = yaml.Unmarshal(file, &t)
 	if err != nil {
-		panic(err)
+		log.Fatalf("error unmarshaling file: %v", err)
 	}
 
-	leaves := getLeaves(tree, []string{})
-	for _, leaf := range leaves {
-		fmt.Printf("%v=%v\n", leaf[0], leaf[1])
+	for _, leaf := range t.leaves() {
+		fmt.Println(leaf)
 	}
 }
 
