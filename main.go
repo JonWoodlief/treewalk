@@ -11,15 +11,15 @@ import (
 
 type Tree map[interface{}]interface{}
 
-func (t Tree) printLeaves() {
+func (t Tree) printLeaves(prefix string) {
 	for k, v := range t {
 		switch node := v.(type) {
 		case string:
 			if !strings.HasPrefix(node, "secret ") {
-				fmt.Println(k, ":", node)
+				fmt.Println(prefix+k.(string), "=", node)
 			}
 		case Tree:
-			node.printLeaves()
+			node.printLeaves(prefix + k.(string) + ".")
 		}
 	}
 }
@@ -52,7 +52,7 @@ func main() {
 
 	t = t.removeSecrets()
 
-	t.printLeaves()
+	t.printLeaves("")
 
 	output, err := yaml.Marshal(t)
 	if err != nil {
