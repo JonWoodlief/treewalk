@@ -43,7 +43,7 @@ func main() {
 
 	leaves := getLeaves(tree, []string{})
 	for _, leaf := range leaves {
-		fmt.Printf("Path: %v Value: %v\n", leaf[0], leaf[1])
+		fmt.Printf("path=%v=%v\n", leaf[0], leaf[1])
 	}
 }
 
