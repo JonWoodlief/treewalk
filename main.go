@@ -38,6 +38,21 @@ func (t Tree) removeSecrets() Tree {
 	return t
 }
 
+func (t Tree) removeEmptyBranches() Tree {
+	for k, v := range t {
+		switch node := v.(type) {
+		case string:
+			// do nothing
+		case Tree:
+			t[k] = node.removeEmptyBranches()
+			if len(t[k].(Tree)) == 0 {
+				delete(t, k)
+			}
+		}
+	}
+	return t
+}
+
 func main() {
 	file, err := ioutil.ReadFile("tree.yaml")
 	if err != nil {
@@ -52,6 +67,7 @@ func main() {
 
 	t.printLeaves("")
 	t = t.removeSecrets()
+	t = t.removeEmptyBranches()
 
 	output, err := yaml.Marshal(t)
 	if err != nil {
